@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taking Mistral-7B Further: Advanced Deployment for LLMs</title>
+  <meta name="description" content="Deploy Mistral-7B on RunPod, integrate it with LangChain, and compare GPUs with a few clicks and a bit of code.">
+  <meta name="author" content="Luis Minvielle">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #ff7000;
+      --accent-dim: rgba(255, 112, 0, 0.15);
+      --code-bg: #0d1117;
+      --link: #ff7000;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    header {
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header .tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    header .meta {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    header .meta a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .lead {
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--text-muted);
+      border-left: 3px solid var(--accent);
+      padding-left: 20px;
+      margin: 40px 0;
+    }
+
+    article { padding: 20px 0 80px; }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 48px 0 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 32px 0 12px;
+    }
+
+    p { margin: 16px 0; }
+
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    strong { font-weight: 600; }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 20px 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9em;
+    }
+
+    p code, li code {
+      background: var(--surface);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      font-size: 14px;
+    }
+
+    .note {
+      background: var(--accent-dim);
+      border: 1px solid rgba(255, 112, 0, 0.3);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 24px 0;
+      font-size: 15px;
+    }
+
+    .note strong { color: var(--accent); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 15px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface);
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td.winner {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    ol, ul {
+      margin: 16px 0;
+      padding-left: 28px;
+    }
+
+    li { margin: 8px 0; }
+
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px 28px;
+      margin: 32px 0;
+    }
+
+    .toc h4 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .toc ol { margin: 0; padding-left: 20px; }
+    .toc li { margin: 6px 0; font-size: 15px; }
+    .toc a { color: var(--text); }
+    .toc a:hover { color: var(--accent); }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }
+
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    footer a { color: var(--accent); }
+
+    .series-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .series-badge span { color: var(--accent); font-weight: 600; }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.6rem; }
+      h2 { font-size: 1.25rem; }
+      pre { padding: 14px; font-size: 13px; }
+      table { font-size: 13px; }
+      th, td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="series-badge">Learn AI with Me &mdash; <span>Part 2</span></div>
+      <div class="tag">LLM Deployment</div>
+      <h1>Taking Mistral-7B Further: Advanced Deployment for LLMs</h1>
+      <p class="meta">By <a href="https://luisminvielle.github.io/">Luis Minvielle</a> &middot; October 2025 &middot; <a href="https://github.com/luisminvielle/mistral-7b-advanced-deployment">View source on GitHub</a></p>
+    </header>
+
+    <article>
+      <p class="lead">I wanted to test how different GPUs work with Mistral-7B. So I integrated it with LangChain and then compared different pods to show how you can take deployment a step further with RunPod, a cloud computing platform designed specifically for AI.</p>
+
+      <div class="toc">
+        <h4>In this guide</h4>
+        <ol>
+          <li><a href="#langchain">How to Integrate LangChain with Mistral-7B for a Real-World Business Application</a></li>
+          <li><a href="#gpu-comparison">How to Compare Inference Speed for Two Different GPU Types</a></li>
+        </ol>
+      </div>
+
+      <p>If you've been reading the <em>Learn AI with Me</em> series, you know by now that you can easily deploy Mistral-7B on RunPod. It literally takes a single click. Now it's time to tweak it and optimize. This guide goes over advanced ways to change how inference workflows work right inside RunPod's infrastructure.</p>
+
+      <p>We'll skip the basic setup and focus on tuning for real-world use: getting responses with "streamed" text, comparing GPUs, understanding which metrics matter, and tinkering with features.</p>
+
+      <div class="note">
+        <strong>TGI and text-generation-webui:</strong> While this tutorial uses <a href="https://github.com/huggingface/text-generation-inference">TGI</a>, you could alternatively deploy via <a href="https://github.com/oobabooga/text-generation-webui">text-generation-webui</a> on RunPod. Deploy with similar GPU specs and share the results.
+      </div>
+
+      <h2 id="langchain">How to Integrate LangChain with Mistral-7B for a Real-World Business Application</h2>
+
+      <p>This step-by-step guide will show how I managed to integrate <a href="https://www.langchain.com/">LangChain</a> with this model. LangChain is the standard that we'll be using to elaborate the chain. The chain is what allows us to ask the query to the Mistral model. It's just four lines, but those are mighty four lines. For your reference, this is what LangChain looks like in my <code>.py</code> file:</p>
+
+<pre><code># Create a prompt template
+prompt_template = PromptTemplate(
+  input_variables=["question"],
+  template="""&lt;s&gt;[INST] {question} [/INST]""",
+)
+
+chain = prompt_template | llm | StrOutputParser()</code></pre>
+
+      <h3>Step 1: Choosing a Template</h3>
+
+      <p>First, you must run the Mistral-7B on a pod. You can start with the Explore page and pick the <strong>Mistral 7B Instruct v0.1 &ndash; TGI API by Trelis</strong>. From there on, you should click on <strong>Deploy</strong>. From there on, you can choose your GPU.</p>
+
+      <p>I chose the <strong>RTX A4500</strong>, with a single GPU. Its specs are 12 vCPU and 62 GB RAM. I deployed one Mistral package (specifically Mistral 7B Instruct v0.1) from the Explore page. I had added a $10 credit and when the deployment finished, I was at $9.68, so the deployment cost me 32 cents. From a quick search online, I noticed that this GPU runs for around $2,000 each piece.</p>
+
+      <p>As per the logs, the download and deployment took me 50 minutes from start to finish (in which I didn't have to do nothing, just wait!). I suspect Docker might have cached the layers, so every identical deployment from this point on was considerably faster, in the order of just minutes.</p>
+
+      <h3>Step 2: Adding the Hugging Face Token</h3>
+
+      <p>What you should know is that Hugging Face now requires explicit permission to access the Mistral model. From what I tried, this is not optional. If you haven't done this, you'll get an error that indicates an unauthorized call.</p>
+
+      <p>To fix it, first, go to Hugging Face and accept Mistral's terms. Then, create an API token there. Inside your RunPod, make a new environment variable:</p>
+
+<pre><code>HUGGINGFACE_HUB_TOKEN</code></pre>
+
+      <p>This step allows your pod to properly use the Mistral model. After this, you can connect to your pod with HTTP on port 8080, adding <code>/generate</code> to its web address, or connect with SSH for code.</p>
+
+      <h3>Step 3: Configuring Your Endpoint</h3>
+
+      <p>Configuring your endpoint is very easy on RunPod. On the pods' dashboard, you must choose your current pod and click on <strong>Connect</strong>. When you click on <strong>Connect</strong>, you'll be prompted with a message which says HTTP Services. If it doesn't show up at first, wait for it. That's the hyperlink to your endpoint.</p>
+
+      <h3>Step 4: Integrating LangChain and Choosing Parameters</h3>
+
+      <p>You now need to integrate LangChain to your Python file. The Python file is what you'll use to initialize the LLM and query it so it can answer your question.</p>
+
+      <p>The default endpoint here will be <code>/generate</code>. With <code>/generate</code>, you can ask the LLM to answer your query and send out a big chunk of text. There's a different way to do it and we'll get into it afterwards. This is what my endpoint looks like:</p>
+
+<pre><code>RUNPOD_ENDPOINT = "https://your-pod-id-8080.proxy.runpod.net/generate"</code></pre>
+
+      <p>First, install every LangChain-related package:</p>
+
+<pre><code>pip install langchain</code></pre>
+
+      <p>Or, if running inside a virtual environment, you can use Poetry. Your <code>pyproject.toml</code> file should include these lines:</p>
+
+<pre><code>"langchain (>=0.3.25,&lt;0.4.0)",
+"langchain-community (>=0.3.25,&lt;0.4.0)",
+"langchain-core (>=0.3.65,&lt;0.4.0)",
+"langchain-huggingface (>=0.3.0,&lt;0.4.0)",</code></pre>
+
+      <p>Import these functions in your code:</p>
+
+<pre><code>from langchain_huggingface import HuggingFaceEndpoint
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser</code></pre>
+
+      <p>You should also use this step to pick your parameters. I used moderate, standard parameters. One key part of my tests was that I always kept the parameters the same. That allowed me to compare inference times between GPUs:</p>
+
+<pre><code># Initialize the LLM with your RunPod endpoint and inference parameters
+llm = HuggingFaceEndpoint(
+    endpoint_url=RUNPOD_ENDPOINT,
+    max_new_tokens=512,
+    top_k=10,
+    top_p=0.95,
+    typical_p=0.95,
+    temperature=0.1,
+    repetition_penalty=1.03,
+)</code></pre>
+
+      <h3>Step 5: Running Your Python File</h3>
+
+      <p>The integration is complete. If you have your Python file ready, you can now run it and LangChain and Mistral will answer your question. Here's the full program:</p>
+
+<pre><code>from langchain_huggingface import HuggingFaceEndpoint
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+RUNPOD_ENDPOINT = "https://your-pod-id-8080.proxy.runpod.net/generate"
+
+# Initialize the LLM with your RunPod endpoint
+llm = HuggingFaceEndpoint(
+    endpoint_url=RUNPOD_ENDPOINT,
+    max_new_tokens=512,
+    top_k=10,
+    top_p=0.95,
+    typical_p=0.95,
+    temperature=0.1,
+    repetition_penalty=1.03,
+)
+
+# Create a prompt template
+prompt_template = PromptTemplate(
+    input_variables=["question"],
+    template="""&lt;s&gt;[INST] {question} [/INST]""",
+)
+
+# Create a chain using the LangChain Expression Language (LCEL)
+chain = prompt_template | llm | StrOutputParser()
+
+# Ask a question
+question = "what do you think of the hitchhikers guide to the galaxy"
+print(f"Question: {question}")
+
+# Get the response
+response = chain.invoke({"question": question})
+print("Response:")
+print(response)</code></pre>
+
+      <p>The first answer, the one about serverless and how it can let a business scale, took around 9 seconds to roll in. The second one, about life, the universe, and everything, took 6 seconds. This is also how you can see how fluid LLMs are.</p>
+
+      <h3>Step 6: Adapting the Answers so that they Stream</h3>
+
+      <p>The initial response technique was synchronous. This means that you get a chunk of text. There's a specific endpoint for streaming: <code>/generate_stream</code>. This is the updated asynchronous code:</p>
+
+<pre><code># Get the response in chunks, as it streams asynchronously
+print("Response (streaming):")
+
+full_response = ""
+async for chunk in chain.astream({"question": question}):
+    print(chunk, end="", flush=True)
+    full_response += chunk</code></pre>
+
+      <p>I ended up getting the same answers but "streamed." For your reference, when I started streaming the answers, I was spending $0.25/hour on my RunPod environment. The response times were the same for this GPU if the text was streamed or not, but getting a streamed endpoint means that the answer starts showing up much earlier.</p>
+
+      <p>If you're about to integrate this LangChain + Mistral setup to a customer support chatbot, go for the <code>/generate_stream</code> endpoint. That's an easy entry into a superior LLM performance.</p>
+
+      <h2 id="gpu-comparison">How to Compare Inference Speed for Two Different GPU Types</h2>
+
+      <p>RunPod currently offers around 25 different GPUs you can choose from. This means that you can draw around 300 comparisons between GPUs. After reading this tutorial, you'll be able to compare any of these GPUs for inference time. You'll also be able to spot easily which GPUs perform better for your business application.</p>
+
+      <p>For this comparison, I used two GPU types with completely distinctive setups so that the differences would jump out:</p>
+
+      <ol>
+        <li><strong>1 x RTX A4500</strong> &mdash; the same pod I used for the previous section. This GPU runs for $0.25/hour.</li>
+        <li><strong>1 x L40S</strong> &mdash; 16 vCPU and 94 GB RAM, bulkier than the other pod. This GPU runs for $0.86/hour.</li>
+      </ol>
+
+      <p>Keep in mind, I never ran out of my initial $10, even if I ran extensive screenings with plenty of other pods that didn't make it into this article.</p>
+
+      <h3>Step 1: Deploying Your Pods</h3>
+
+      <p>To deploy your new pods, follow the same steps I outlined for the previous tutorial. You don't need to use the same GPUs I chose here. But use the same setup so you can draw your own comparisons: Mistral-7B on both.</p>
+
+      <h3>Step 2: Writing Code for a Comparative</h3>
+
+      <p>For this test, use the same program from the previous section, but adapt it so you can compare two GPUs and get metrics from them:</p>
+
+<pre><code># --- Configuration
+# Add the endpoint URLs for the pods you want to compare.
+POD_ENDPOINTS = {
+    "Pod 1: L40S": "https://pod-1-id-8080.proxy.runpod.net/generate_stream",
+    "Pod 2: RTX A4500": "https://pod-2-id-8080.proxy.runpod.net/generate_stream",
+}
+
+# The question that will be sent to both models for a fair comparison.
+QUESTION = "Explain to me why serverless is a good idea if I want my business to scale"</code></pre>
+
+<pre><code>async def test_pod_performance(pod_name: str, endpoint_url: str):
+    """Tests the inference speed of a given pod endpoint and prints the results."""
+    print(f"--- Testing: {pod_name} ---")</code></pre>
+
+      <p>You can include different questions for comparison:</p>
+
+<pre><code>QUESTION = (
+    "Explain to me why serverless is a good idea if I want my business to scale"
+    # OR "Explain to me the theory of relativity"
+    # OR "What's the meaning of life, the universe, and everything"
+)</code></pre>
+
+      <h3>Step 3: Understanding which Measures Matter</h3>
+
+      <p>There are three performance metrics you'll be getting on your terminal:</p>
+
+      <ol>
+        <li><strong>Time to First Token (TTFT)</strong> &mdash; The time it takes for an LLM to generate and output the very first piece of its response after receiving a prompt.</li>
+        <li><strong>Total Generation Time</strong> &mdash; The entire duration from when an LLM receives a prompt until it has completed and outputted its full, final response.</li>
+        <li><strong>Characters per Second</strong> &mdash; The rate at which an LLM "writes" characters in its output.</li>
+      </ol>
+
+      <p>The measure that really matters is total generation time. Because if there's a human on the other end of the LLM, the UX will be contingent on this measure more than on the others.</p>
+
+      <h3>Step 4: Running Your Code and Checking the Results</h3>
+
+      <p>When I asked these two GPUs about the theory of relativity, they gave me similar answers with very different metrics:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>1 x L40S</th>
+            <th>1 x RTX A4500</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Time to First Token (TTFT)</td>
+            <td>2.1403 s</td>
+            <td class="winner">1.4494 s</td>
+          </tr>
+          <tr>
+            <td>Total Generation Time</td>
+            <td class="winner">8.3748 s</td>
+            <td>11.3774 s</td>
+          </tr>
+          <tr>
+            <td>Characters per Second</td>
+            <td class="winner">204.03</td>
+            <td>145.59</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>I then went on to ask more questions. The difference when asking about serverless was also noticeable.</p>
+
+      <p>When I asked about life, the universe and everything, though, the total generation time was incredibly similar. This shows how non-deterministic a LLM architecture can be. Three different questions, same setup, relatively similar answer length, and incredibly different results.</p>
+
+      <h2>What's Next: Optimizing Your Favorite GPU</h2>
+
+      <p>This guide explained how to use a regular Mistral setup on RunPod and make the most out of it. With this guide, you can try LangChain with streamed (or "typed") text which you can then integrate into a customer support chatbot. And you can also compare different pods and GPUs to find out which one, in between price and performance, is your favorite.</p>
+
+      <p>A good next step for any programmer looking to make the most out of Mistral-7B would be to find more control, better performance, or extended functionality using RunPod.</p>
+
+      <hr>
+
+      <p><em>This article was originally written for RunPod.io. I'm posting it here independently.</em></p>
+    </article>
+
+    <footer>
+      <p><a href="https://luisminvielle.github.io/">Luis Minvielle</a> &middot; <a href="https://github.com/luisminvielle">GitHub</a> &middot; <a href="https://linkedin.com/in/luisminv">LinkedIn</a></p>
+    </footer>
+  </div>
+</body>
+</html>
