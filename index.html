@@ -8,17 +8,20 @@
   <meta name="author" content="Luis Minvielle">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --border: #30363d;
-      --text: #e6edf3;
-      --text-muted: #8b949e;
-      --accent: #ff7000;
-      --accent-dim: rgba(255, 112, 0, 0.15);
-      --code-bg: #0d1117;
+      --bg: #000000;
+      --surface: #0f0f0f;
+      --surface-2: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #f0f0f0;
+      --text-muted: #8b8b8b;
+      --mistral-orange: #ff7000;
+      --mistral-yellow: #ffb800;
+      --mistral-green: #00dc82;
+      --accent-dim: rgba(255, 112, 0, 0.12);
+      --gradient-mistral: linear-gradient(135deg, #ff7000, #ffb800);
       --link: #ff7000;
     }
 
@@ -32,56 +35,185 @@
       font-size: 17px;
     }
 
+    /* --- Mistral-style top bar --- */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .mistral-mark {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      justify-content: center;
+    }
+
+    .mistral-mark span {
+      height: 3px;
+      border-radius: 2px;
+    }
+
+    .mistral-mark span:nth-child(1) { background: #ff7000; width: 100%; }
+    .mistral-mark span:nth-child(2) { background: #ffb800; width: 75%; }
+    .mistral-mark span:nth-child(3) { background: #00dc82; width: 50%; }
+    .mistral-mark span:nth-child(4) { background: #ff7000; width: 100%; }
+    .mistral-mark span:nth-child(5) { background: #ffb800; width: 65%; }
+
+    .topbar-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .topbar-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .topbar-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .topbar-links a:hover { color: var(--text); }
+
+    .topbar-links .btn-gh {
+      color: var(--text);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+
+    .topbar-links .btn-gh:hover { border-color: var(--mistral-orange); }
+
+    /* --- Hero --- */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-img {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      display: block;
+      opacity: 0.7;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 60px 40px 40px;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
+    }
+
+    .hero-overlay .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: var(--gradient-mistral);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+
+    .hero-overlay h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1.15;
+      max-width: 700px;
+      letter-spacing: -1px;
+    }
+
+    .hero-overlay .meta {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 12px;
+    }
+
+    .hero-overlay .meta a {
+      color: var(--mistral-orange);
+      text-decoration: none;
+    }
+
+    /* --- Container --- */
     .container {
       max-width: 780px;
       margin: 0 auto;
       padding: 0 24px;
     }
 
-    header {
-      padding: 60px 0 40px;
+    /* --- Mistral badge strip --- */
+    .tech-strip {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 24px 0;
       border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
     }
 
-    header .tag {
-      display: inline-block;
+    .tech-chip {
       font-size: 12px;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--accent);
-      background: var(--accent-dim);
-      padding: 4px 12px;
-      border-radius: 4px;
-      margin-bottom: 16px;
-    }
-
-    h1 {
-      font-size: 2.2rem;
-      font-weight: 700;
-      line-height: 1.2;
-      margin-bottom: 16px;
-    }
-
-    header .meta {
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
       color: var(--text-muted);
-      font-size: 14px;
+      background: var(--surface);
+      letter-spacing: 0.3px;
     }
 
-    header .meta a {
-      color: var(--accent);
-      text-decoration: none;
+    .tech-chip.primary {
+      border-color: var(--mistral-orange);
+      color: var(--mistral-orange);
+      background: var(--accent-dim);
     }
 
+    /* --- Lead --- */
     .lead {
       font-size: 1.1rem;
       font-style: italic;
       color: var(--text-muted);
-      border-left: 3px solid var(--accent);
+      border-left: 3px solid var(--mistral-orange);
       padding-left: 20px;
-      margin: 40px 0;
+      margin: 32px 0;
     }
 
+    /* --- Article --- */
     article { padding: 20px 0 80px; }
 
     h2 {
@@ -90,6 +222,7 @@
       margin: 48px 0 16px;
       padding-top: 24px;
       border-top: 1px solid var(--border);
+      letter-spacing: -0.3px;
     }
 
     h3 {
@@ -105,10 +238,12 @@
 
     strong { font-weight: 600; }
 
+    /* --- Code blocks with Mistral accent --- */
     pre {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-left: 3px solid var(--mistral-orange);
+      border-radius: 0 8px 8px 0;
       padding: 20px;
       overflow-x: auto;
       margin: 20px 0;
@@ -122,7 +257,7 @@
     }
 
     p code, li code {
-      background: var(--surface);
+      background: var(--surface-2);
       padding: 2px 6px;
       border-radius: 4px;
       font-size: 0.85em;
@@ -134,6 +269,7 @@
       font-size: 14px;
     }
 
+    /* --- Note boxes --- */
     .note {
       background: var(--accent-dim);
       border: 1px solid rgba(255, 112, 0, 0.3);
@@ -143,8 +279,30 @@
       font-size: 15px;
     }
 
-    .note strong { color: var(--accent); }
+    .note strong { color: var(--mistral-orange); }
 
+    /* --- Screenshots --- */
+    .screenshot {
+      margin: 28px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .screenshot img {
+      width: 100%;
+      display: block;
+    }
+
+    .screenshot figcaption {
+      background: var(--surface);
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* --- Table with Mistral styling --- */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -164,10 +322,11 @@
       font-size: 13px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      color: var(--mistral-orange);
     }
 
     td.winner {
-      color: var(--accent);
+      color: var(--mistral-green);
       font-weight: 600;
     }
 
@@ -178,6 +337,7 @@
 
     li { margin: 8px 0; }
 
+    /* --- TOC --- */
     .toc {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -197,7 +357,7 @@
     .toc ol { margin: 0; padding-left: 20px; }
     .toc li { margin: 6px 0; font-size: 15px; }
     .toc a { color: var(--text); }
-    .toc a:hover { color: var(--accent); }
+    .toc a:hover { color: var(--mistral-orange); }
 
     hr {
       border: none;
@@ -205,47 +365,66 @@
       margin: 40px 0;
     }
 
+    /* --- Footer with gradient bar --- */
     footer {
       padding: 40px 0;
-      border-top: 1px solid var(--border);
+      border-top: 2px solid transparent;
+      border-image: var(--gradient-mistral) 1;
       color: var(--text-muted);
       font-size: 14px;
     }
 
-    footer a { color: var(--accent); }
+    footer a { color: var(--mistral-orange); }
 
-    .series-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px 14px;
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-    }
-
-    .series-badge span { color: var(--accent); font-weight: 600; }
-
+    /* --- Responsive --- */
     @media (max-width: 600px) {
-      h1 { font-size: 1.6rem; }
+      .hero-overlay h1 { font-size: 1.6rem; }
+      .hero-overlay { padding: 40px 20px 24px; }
       h2 { font-size: 1.25rem; }
       pre { padding: 14px; font-size: 13px; }
       table { font-size: 13px; }
       th, td { padding: 8px 10px; }
+      .topbar { padding: 12px 16px; }
+      .topbar-links { gap: 12px; }
+      .topbar-links a:not(.btn-gh) { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="series-badge">Learn AI with Me &mdash; <span>Part 2</span></div>
-      <div class="tag">LLM Deployment</div>
+
+  <nav class="topbar">
+    <a class="topbar-logo" href="https://luisminvielle.github.io/">
+      <span class="topbar-title">Luis Minvielle</span>
+    </a>
+    <div class="topbar-links">
+      <a href="#langchain">LangChain</a>
+      <a href="#gpu-comparison">GPU Benchmark</a>
+      <a class="btn-gh" href="https://github.com/luisminvielle/mistral-7b-advanced-deployment">View on GitHub</a>
+    </div>
+  </nav>
+
+  <!-- Hero with image -->
+  <div class="hero">
+    <img class="hero-img" src="hero.png" alt="Advanced Mistral-7B Deployment — LangChain integration and GPU benchmarking">
+    <div class="hero-overlay">
+      <div class="tag">Mistral-7B &middot; LLM Deployment</div>
       <h1>Taking Mistral-7B Further: Advanced Deployment for LLMs</h1>
-      <p class="meta">By <a href="https://luisminvielle.github.io/">Luis Minvielle</a> &middot; October 2025 &middot; <a href="https://github.com/luisminvielle/mistral-7b-advanced-deployment">View source on GitHub</a></p>
-    </header>
+      <p class="meta">By <a href="https://luisminvielle.github.io/">Luis Minvielle</a> &middot; October 2025</p>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Tech strip -->
+    <div class="tech-strip">
+      <span class="tech-chip primary">Mistral-7B</span>
+      <span class="tech-chip primary">LangChain</span>
+      <span class="tech-chip">RunPod</span>
+      <span class="tech-chip">Python</span>
+      <span class="tech-chip">TGI</span>
+      <span class="tech-chip">Hugging Face</span>
+      <span class="tech-chip">GPU Benchmarking</span>
+    </div>
 
     <article>
       <p class="lead">I wanted to test how different GPUs work with Mistral-7B. So I integrated it with LangChain and then compared different pods to show how you can take deployment a step further with RunPod, a cloud computing platform designed specifically for AI.</p>
@@ -284,6 +463,11 @@ chain = prompt_template | llm | StrOutputParser()</code></pre>
 
       <p>I chose the <strong>RTX A4500</strong>, with a single GPU. Its specs are 12 vCPU and 62 GB RAM. I deployed one Mistral package (specifically Mistral 7B Instruct v0.1) from the Explore page. I had added a $10 credit and when the deployment finished, I was at $9.68, so the deployment cost me 32 cents. From a quick search online, I noticed that this GPU runs for around $2,000 each piece.</p>
 
+      <figure class="screenshot">
+        <img src="screenshot-deploy.png" alt="RunPod deployment dashboard showing Mistral-7B on RTX A4500">
+        <figcaption>RunPod deployment dashboard &mdash; Mistral-7B Instruct v0.1 on RTX A4500</figcaption>
+      </figure>
+
       <p>As per the logs, the download and deployment took me 50 minutes from start to finish (in which I didn't have to do nothing, just wait!). I suspect Docker might have cached the layers, so every identical deployment from this point on was considerably faster, in the order of just minutes.</p>
 
       <h3>Step 2: Adding the Hugging Face Token</h3>
@@ -293,6 +477,11 @@ chain = prompt_template | llm | StrOutputParser()</code></pre>
       <p>To fix it, first, go to Hugging Face and accept Mistral's terms. Then, create an API token there. Inside your RunPod, make a new environment variable:</p>
 
 <pre><code>HUGGINGFACE_HUB_TOKEN</code></pre>
+
+      <figure class="screenshot">
+        <img src="screenshot-hf.png" alt="Hugging Face token configuration for Mistral model access">
+        <figcaption>Hugging Face &mdash; accepting Mistral's terms and generating an API token</figcaption>
+      </figure>
 
       <p>This step allows your pod to properly use the Mistral model. After this, you can connect to your pod with HTTP on port 8080, adding <code>/generate</code> to its web address, or connect with SSH for code.</p>
 
